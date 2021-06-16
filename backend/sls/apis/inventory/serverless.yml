@@ -1,0 +1,41 @@
+service: api-inventory
+
+frameworkVersion: ">=1.8.0 <3.0.0"
+
+provider:
+  name: aws
+  deploymentBucket:
+    name: inventory-mgmt-sys-deployment-bkt
+  iamRoleStatements: ${file(../../../sls/shared/iam-role-statements.yml)}
+  apiGateway:
+    restApiId:
+      Fn::ImportValue: RestAPIGatewayId
+    restApiRootResourceId:
+      Fn::ImportValue: RestAPIGatewayRootResourceId
+    restApiResources:
+      'api': 
+        Fn::ImportValue: ApiResourceId
+
+plugins:
+  - serverless-webpack
+  - ./../../shared/plugins/context-plugin   #this plugin changes the directory in which this serverless proj is executed
+
+custom:
+  webpack: 
+    config: ../../sls/shared/webpack.config.js
+    includeModules:
+      packagePath: ../../../package.json
+      forceExclude:
+        - aws-sdk   # In an Lambda runtime this is already there
+
+functions:
+
+  AddItem:
+    handler: index.addItemHandler
+    memorySize: 256
+    timeout: 6
+    events:
+      - http:
+          path: api/item
+          method: post
+          integration: lambda-proxy

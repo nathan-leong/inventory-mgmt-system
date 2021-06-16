@@ -1,0 +1,44 @@
+service: storage
+
+frameworkVersion: ">=1.8.0 <3.0.0"
+
+provider:
+  name: aws
+  deploymentBucket:
+    name: inventory-mgmt-sys-deployment-bkt
+
+resources:
+  Resources: 
+    InventoryDynamoDBTable: 
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        AttributeDefinitions: 
+          - 
+            AttributeName: "Id"
+            AttributeType: "S"
+          - 
+            AttributeName: "Name"
+            AttributeType: "S"
+        KeySchema: 
+          - 
+            AttributeName: "Id"
+            KeyType: "HASH"
+          - 
+            AttributeName: "Name"
+            KeyType: "RANGE"
+        ProvisionedThroughput: 
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"
+        TableName: "inventoryItemsTable"
+
+  Outputs:
+    InventoryTable:
+      Value: 
+        Ref: InventoryDynamoDBTable
+      Export:
+        Name: InventoryDynamoDBTable
+    InventoryTableArn:
+      Value: 
+        'Fn::GetAtt': [ InventoryDynamoDBTable, Arn ]
+      Export:
+        Name: InventoryDynamoDBTableArn

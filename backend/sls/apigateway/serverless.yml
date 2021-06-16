@@ -1,0 +1,102 @@
+service: apigateway
+
+frameworkVersion: ">=1.8.0 <3.0.0"
+
+provider:
+  name: aws
+  deploymentBucket:
+    name: inventory-mgmt-sys-deployment-bkt
+
+custom: 
+  api:
+    apiGatewayPath: "api"
+    apiGatewayLoggingEnabled: true
+
+resources:
+  Resources:
+
+  ## Override the default Serverless framework ApiGateway naming convention
+    ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: inventory-mgmt-sys-api-gw
+        EndpointConfiguration:
+          Types: ["REGIONAL"]
+
+    ApiGatewayResourceApi:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId: 
+          'Fn::GetAtt': [ ApiGatewayRestApi, RootResourceId ]
+        PathPart: ${self:custom.api.apiGatewayPath}
+        RestApiId: !Ref ApiGatewayRestApi
+
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Cache-Control,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,PUT,POST,PATCH,DELETE'"
+          gatewayresponse.header.Access-Control-Expose-Headers: "'Cache-Control,Cookie,Set-Cookie,Content-Type'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Cache-Control,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,PUT,POST,PATCH,DELETE'"
+          gatewayresponse.header.Access-Control-Expose-Headers: "'Cache-Control,Cookie,Set-Cookie,Content-Type'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
+    GatewayResponse401:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Cache-Control,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,PUT,POST,PATCH,DELETE'"
+          gatewayresponse.header.Access-Control-Expose-Headers: "'Cache-Control,Cookie,Set-Cookie,Content-Type'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+
+  #API Outputs
+  Outputs:
+    RestAPIGatewayId: 
+      Value: 
+        Ref: ApiGatewayRestApi
+      Export:
+        Name: RestAPIGatewayId
+    RestAPIGatewayBaseUrl:
+      Value:
+        "Fn::Join": ["",
+            [
+              !Ref ApiGatewayRestApi,
+              ".execute-api.",
+              "${opt:region}",
+              ".amazonaws.com"
+            ]]
+      Export:
+        Name: RestAPIGatewayBaseUrl     
+    RestAPIGatewayRootResourceId:
+      Value: 
+        'Fn::GetAtt': [ ApiGatewayRestApi, RootResourceId ]
+      Export:
+        Name: RestAPIGatewayRootResourceId
+    ApiResourceId: 
+      Value: 
+        Ref: ApiGatewayResourceApi
+      Export:
+        Name: ApiResourceId
+    ApiGatewayPath: 
+      Value: ${self:custom.api.apiGatewayPath}
+      Export:
+        Name: ApiGatewayPath
