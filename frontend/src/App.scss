@@ -1,0 +1,27 @@
+.btn-primary, .btn-secondary {
+  height: 30px;
+  width: 100px;
+  border-radius: 10px;
+  box-shadow: 0 3px 1px rgb(185, 185, 185);
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: white;
+  background-color: #FBA320;
+}
+
+.btn-secondary {
+  color: white;
+  background-color: #DCDCDC;
+}
+
+.page-body {
+  box-sizing: border-box;
+  background-color: #f1ebe1;
+  height: 100vh;
+  padding: 100px 100px 50px 100px;
+
+}

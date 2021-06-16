@@ -1,0 +1,49 @@
+.check-in-page {
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .check-in-wrapper {
+    background-color: white;
+    height: 70vh;
+    width: 60%;
+    min-width: 600px;
+
+    .check-in-header {
+      .check-in-toggle, .check-out-toggle {
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        width: 50%;
+        height: 100px;
+        background-color: #DCDCDC;
+        text-align: center;
+        color: white;
+        font-size: 40px;
+        &.selected {
+          background-color: #FBA320;
+        }
+        p {
+          margin: 0;
+          line-height: 100px;
+        }
+        :hover {
+          background-color: #f1ce99;
+        }
+      }
+    }
+  }
+
+  .check-in-items-wrapper, .check-out-items-wrapper {
+    text-align: center;
+    height: 70vh;
+    width: 30%;
+    min-width: 300px;
+    background-color: white;
+    .item-list {
+      height: 70%;
+    }
+  }
+
+}
