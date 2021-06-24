@@ -7,8 +7,35 @@ provider:
   deploymentBucket:
     name: inventory-mgmt-sys-deployment-bkt
 
+custom:
+  frontendBucketName: inventory-mgmt-sys-frontend
+
 resources:
-  Resources: 
+  Resources:
+
+    FrontEndS3: #upload front end to this bucket
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.frontendBucketName}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+
+    FrontEndS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: FrontEndS3
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action:
+              - s3:GetObject
+              Resource: arn:aws:s3:::${self:custom.frontendBucketName}/*
+
     InventoryDynamoDBTable: 
       Type: AWS::DynamoDB::Table
       Properties: 
@@ -42,3 +69,8 @@ resources:
         'Fn::GetAtt': [ InventoryDynamoDBTable, Arn ]
       Export:
         Name: InventoryDynamoDBTableArn
+    FrontEndS3DomainName:
+      Value:
+        'Fn::GetAtt': [ FrontEndS3, DomainName ]
+      Export:
+        Name: InventoryMgmtSysDomainName
